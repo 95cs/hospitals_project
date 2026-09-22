@@ -79,7 +79,7 @@ Un criteriu de mărime sau de acces real poate fi mai potrivit decât cel admini
 | # | Sursă | Ce conține | Granularitate | Stare |
 |---|---|---|---|---|
 | 1 | INS TEMPO, matricea POP107D | Populație pe grupe de vârstă, 2026, ambele sexe | localitate (cod SIRUTA) | ✅ 42/42 fișiere, procesată și validată |
-| 2 | _(de stabilit)_ | Unități sanitare / paturi de spital | localitate sau județ | ⬜ |
+| 2 | INS TEMPO, matricea SAN101B | Unități sanitare pe categorii și forme de proprietate, 2024 | localitate (cod SIRUTA) | ✅ 41/42 fișiere descărcate |
 | 3 | _(de stabilit)_ | Personal medical (medici la 1.000 locuitori) | județ, probabil | ⬜ |
 | 4 | _(de stabilit)_ | Coordonate geografice pentru SIRUTA | localitate | ⬜ necesară pentru calculul distanțelor |
 
@@ -219,7 +219,8 @@ presupunerile despre date nu se confirmă. Notebook-ul rămâne ca urmă a explo
 - [ ] Ce prag de distanță înseamnă „acces slab"?
 
 **Mai departe**
-- [ ] Sursa 2 — unități sanitare
+- [x] Sursa 2 — unități sanitare (SAN101B, 2024, 41 județe)
+- [ ] `src/prep_unitati.py`
 - [ ] Sursa 3 — personal medical
 - [ ] Join pe `cod_siruta` (atenție la `dtype` — vezi decizia 2)
 - [ ] Regula de prioritizare pentru „primele 10"
