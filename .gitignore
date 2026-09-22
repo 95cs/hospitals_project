@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+data/processed/
+
+# date brute pastrate in repo: 1.5 MB, fac proiectul reproductibil
