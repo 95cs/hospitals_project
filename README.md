@@ -176,6 +176,84 @@ După excluderea Bucureștiului: 3.180 de localități, între 109 și 370.437 l
 
 ---
 
+## Rezultate
+
+### Cei doi indicatori de acces
+
+Accesul e măsurat pe două axe, nu pe una singură:
+
+| Indicator | Definiție | Localități |
+|---|---|---|
+| `are_medic_familie` | cel puțin un cabinet de medicină de familie | 2.821 din 3.180 |
+| `are_farmacie` | cel puțin o farmacie **sau** un punct farmaceutic | 2.553 din 3.180 |
+
+**De ce intră și punctele farmaceutice.** Punctul farmaceutic e forma redusă, permisă legal
+tocmai în localitățile prea mici pentru a susține o farmacie completă. 516 localități au punct
+farmaceutic dar nu au farmacie; excluzându-le, le-am declara fără acces la medicație deși au
+unde să își ridice rețeta. Rezerva: un punct farmaceutic are stoc și program mai reduse, deci
+„are acces" nu înseamnă acces egal.
+
+### Cele patru situații
+
+```
+are_farmacie       False  True
+are_medic_familie
+False                169    190
+True                 458   2363
+```
+
+Prima observație care contrazice intuiția: **lipsa farmaciei e aproape de două ori mai
+răspândită decât lipsa medicului** — 627 de localități fără farmacie, față de 359 fără medic
+de familie. Un singur indicator, construit doar pe medicul de familie, ar fi ratat problema
+mai mare.
+
+### Accesul scade odată cu îmbătrânirea
+
+Ponderea medie a populației de 65+, pe cele patru grupe:
+
+| | fără farmacie | cu farmacie |
+|---|---|---|
+| **fără medic** | **23,6%** | 19,3% |
+| **cu medic** | 21,2% | 18,8% |
+
+Gradient monoton: cu cât o localitate are mai puține servicii, cu atât e mai îmbătrânită.
+
+### Lista scurtă
+
+**169 de localități nu au nici medic de familie, nici farmacie** — 224.756 de locuitori, din
+care 47.750 peste 65 de ani. Cele mai îmbătrânite dintre ele:
+
+| Localitate | Județ | Populație | 65+ | Pondere |
+|---|---|---|---|---|
+| BATRANA | Hunedoara | 109 | 51 | 46,8% |
+| PARDOSI | Buzău | 287 | 128 | 44,6% |
+| CERBAL | Hunedoara | 388 | 171 | 44,1% |
+| BUNILA | Hunedoara | 309 | 128 | 41,4% |
+| BREBU NOU | Caraș-Severin | 328 | 135 | 41,2% |
+| TOMESTI | Hunedoara | 1.001 | 394 | 39,4% |
+| UDA-CLOCOCIOV | Teleorman | 1.149 | 441 | 38,4% |
+
+Distribuția pe județe a celor 169: Caraș-Severin 18, Hunedoara 16, Mehedinți 14, Vaslui 12,
+Buzău 11, Cluj 11. Zona montană de vest și Moldova — cu excepția notabilă a Clujului, județ
+prosper cu 11 localități fără niciun serviciu medical.
+
+### Ce nu demonstrează aceste cifre
+
+**Corelație, nu cauzalitate.** Legătura dintre îmbătrânire și lipsa serviciilor e clară, dar
+direcția nu se poate stabili din aceste date. Comuna îmbătrânește și cabinetul se închide din
+lipsă de pacienți, sau serviciile dispar și familiile tinere pleacă? Aproape sigur amândouă,
+reciproc. Analiza nu le poate separa.
+
+Consecința practică pentru recomandarea finală: o comună care a pierdut medicul pentru că are
+109 locuitori va pune aceeași problemă unui centru nou. *Unde e nevoia cea mai mare* și *unde
+are sens să construiești* produc liste diferite.
+
+**„Fără cabinet înregistrat în localitate" nu înseamnă zero asistență.** Un medic dintr-o
+comună vecină poate ține program acolo. TEMPO nu poate spune asta. E cel mai bun semnal
+disponibil, nu o certitudine.
+
+---
+
 ## Structura proiectului
 
 ```
@@ -196,7 +274,9 @@ python3 -m venv venv && source venv/bin/activate && pip install pandas jupyter
 Reface întregul lanț, de la CSV-urile brute la fișierul din `data/processed/`:
 
 ```bash
-python src/prep_populatie.py
+python src/prep_populatie.py     # 42 CSV-uri  -> populatie_localitati.csv  (3.180)
+python src/prep_unitati.py       # 41 CSV-uri  -> unitati_localitati.csv    (3.040)
+python src/construieste_set.py   # le imbina   -> set_analiza.csv           (3.180)
 ```
 
 Scriptul se oprește cu `EroareDeDate` și cod de ieșire 1 dacă vreuna dintre
@@ -220,8 +300,9 @@ presupunerile despre date nu se confirmă. Notebook-ul rămâne ca urmă a explo
 
 **Mai departe**
 - [x] Sursa 2 — unități sanitare (SAN101B, 2024, 41 județe)
-- [ ] `src/prep_unitati.py`
-- [ ] Sursa 3 — personal medical
-- [ ] Join pe `cod_siruta` (atenție la `dtype` — vezi decizia 2)
-- [ ] Regula de prioritizare pentru „primele 10"
+- [x] `src/prep_unitati.py` — 3.040 localități cu cel puțin o unitate
+- [x] Join pe `cod_siruta` → `src/construieste_set.py`, 3.180 localități
+- [x] Indicatorii de acces (`notebooks/02_indicatori.ipynb`)
+- [ ] Regula de prioritizare pentru „primele 10" — 169 de candidați, 10 locuri
+- [ ] Sursa 3 — personal medical (SAN104B)
 - [ ] Dashboard Power BI
