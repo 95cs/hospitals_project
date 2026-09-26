@@ -1,337 +1,360 @@
-# Acces la servicii medicale în România
+# Access to Healthcare in Rural Romania
 
-Analiză la nivel de localitate (UAT) a relației dintre îmbătrânirea populației și accesul la
-servicii medicale, pentru fundamentarea unei decizii de amplasare de centre medicale noi.
+Locality-level analysis of the relationship between population ageing and access to medical
+services, built to support a decision about where to open new medical centres.
+
+Every figure below is reproducible from the raw data in this repository with three commands.
 
 ---
 
-## Întrebarea de business
+## The question
 
-> **Ministerul Sănătății trebuie să decidă unde să deschidă 10 centre medicale noi. În care
-> localități se suprapun cel mai puternic o populație vârstnică numeroasă, distanța mare până
-> la cea mai apropiată unitate spitalicească, și o densitate de personal medical sub media
-> națională?**
+> **The Ministry of Health has to decide where to open 10 new medical centres. In which
+> localities do a large elderly population, distance to the nearest hospital, and below-average
+> medical staffing overlap most strongly?**
 
-**Destinatarul** ia o decizie de alocare bugetară cu 10 poziții. **Acțiunea** e concretă:
-lista scurtă de comune. Răspunsul cere **trei surse** care nu se potrivesc natural și nu poate
-fi ghicit dinainte.
+It has a decision-maker allocating a fixed budget, a concrete action attached (a shortlist of
+localities), it needs three sources that do not line up naturally, and the answer is not
+guessable in advance.
 
-### Ce rămâne de decis în formularea de mai sus
+### Still open in that formulation
 
-| Întrebare deschisă | De ce contează |
+| Open question | Why it matters |
 |---|---|
-| Ce distanță înseamnă „mare"? | Pragul (25 km? 30?) schimbă complet lista finală și trebuie apărat |
-| Cum se combină cele trei criterii? | Un filtru cu „ȘI" poate returna 3 comune sau 400. Pentru „primele 10" e nevoie de o **regulă de prioritizare** (scor compus sau ordonare lexicografică), iar ponderile alese vor fi prima întrebare pe care o primești |
-| Distanță în linie dreaptă sau pe drum? | În Hunedoara, Caraș-Severin și Apuseni — exact zonele cu cele mai îmbătrânite comune — diferența e uriașă |
+| What distance counts as "far"? | The threshold (25 km? 30?) changes the final list and has to be defended |
+| How do the three criteria combine? | A filter joined by AND could return 3 localities or 400. Producing a *top 10* requires a prioritisation rule, and the weights chosen will be the first thing anyone asks about |
+| Straight-line distance or road distance? | In Hunedoara, Caraș-Severin and the Apuseni mountains — exactly where the oldest under-served communes are — the difference is large |
+
+The distance criterion is not yet implemented: it needs geographic coordinates, which the
+SIRUTA code does not carry. See *Data sources*, row 4.
 
 ---
 
-## Aria analizei
+## Scope
 
-Validarea se face pe **toate cele 3.181 de localități**. Din analizele la nivel de localitate
-se exclude, deocamdată, doar **Municipiul București**.
+Validation runs on **all 3,181 localities**. Only **Bucharest** is excluded from locality-level
+analysis, for now.
 
-| | UAT-uri | Populație | Persoane 65+ | Pondere 65+ |
+| | Units | Population | People 65+ | 65+ share |
 |---|---|---|---|---|
-| Set complet (validat) | 3.181 | 21.646.220 | 4.076.589 | 18,8% |
-| București (exclus) | 1 | 2.108.049 | 426.601 | 20,2% |
-| **Set de lucru** | **3.180** | **19.538.171** | **3.649.988** | **18,7%** |
+| Complete set (validated) | 3,181 | 21,646,220 | 4,076,589 | 18.8% |
+| Bucharest (excluded) | 1 | 2,108,049 | 426,601 | 20.2% |
+| **Working set** | **3,180** | **19,538,171** | **3,649,988** | **18.7%** |
 
-**Motivul excluderii Bucureștiului este tehnic, nu tematic:** vine agregat, ca un singur rând
-de 2,1 milioane de locuitori, fără defalcare pe sectoare. Restul țării e la nivel de UAT, cu o
-mediană de 3.003 locuitori. Un punct de date care reprezintă 10% din populația țării nu e
-comparabil cu celelalte 3.180 și ar domina orice vizualizare la nivel de localitate.
+**The reason for excluding Bucharest is technical, not thematic:** it arrives aggregated, a
+single row of 2.1 million people with no breakdown by sector, while the rest of the country is
+at territorial-unit level with a median population of 3,003. One data point representing 10% of
+the country is not comparable with the other 3,180 and would dominate any locality-level chart.
 
-Validarea rămâne pe setul complet, înaintea excluderii — un set validat integral e o bază mai
-solidă decât unul validat după filtrare, și permite recalcularea totalurilor naționale.
+Validation stays on the complete set, ahead of the exclusion — a fully validated set is a
+stronger baseline and keeps the national totals available for comparison.
 
-### Decizie amânată: restrângerea la mediul rural
+### Deferred: narrowing to rural localities
 
-Întrebarea vizează zonele fără acces, iar orașele și municipiile concentrează unitățile
-spitalicești. O variantă este restrângerea la cele 2.862 de comune:
+The question targets under-served areas, and towns and cities concentrate the hospitals. One
+option is to restrict the analysis to the 2,862 communes:
 
-| | UAT-uri | Populație | Persoane 65+ |
+| | Units | Population | People 65+ |
 |---|---|---|---|
-| Comune | 2.862 | 9.697.493 | 1.701.854 |
-| Orașe + municipii | 319 | 11.948.727 | 2.374.735 |
+| Communes | 2,862 | 9,697,493 | 1,701,854 |
+| Towns + municipalities | 319 | 11,948,727 | 2,374,735 |
 
-Ar însemna excluderea a 55,2% din populația țării, iar ponderea 65+ ar coborî la 17,5% —
-mediul urban are, în cifre absolute, mai mulți vârstnici.
+That would exclude 55.2% of the country's population and bring the 65+ share down to 17.5% —
+urban Romania holds more elderly people in absolute terms.
 
-**Nu se aplică deocamdată**, pentru că filtrul administrativ taie greșit în ambele direcții.
-Clasificarea comună / oraș / municipiu este juridică, nu funcțională: nu urmărește nici
-mărimea, nici izolarea, nici accesul real.
+**Not applied, because the administrative filter cuts wrong in both directions.** The
+commune / town / municipality classification is legal, not functional: it tracks neither size,
+nor isolation, nor actual access.
 
-- `FLORESTI` (Cluj) are 58.010 locuitori și e comună — ar rămâne, deși e suburbia Clujului,
-  la câțiva kilometri de trei spitale mari.
-- `ORAS VASCAU` (Bihor) are 2.041 de locuitori și 27,7% vârstnici, în Munții Apuseni — ar
-  ieși, deși e exact profilul căutat.
-- 120 de orașe și municipii au sub 10.000 de locuitori; `ORAS BAILE TUSNAD` (1.550) e mai mic
-  decât mediana setului de lucru.
+- `FLORESTI` (Cluj) has 58,010 inhabitants and is a commune — it would stay in, despite being
+  a suburb of Cluj-Napoca within a few kilometres of three major hospitals.
+- `ORAS VASCAU` (Bihor) has 2,041 inhabitants and 27.7% aged 65+, deep in the Apuseni
+  mountains — it would drop out, despite being exactly the profile being looked for.
+- 120 towns and municipalities have fewer than 10,000 inhabitants; `ORAS BAILE TUSNAD` (1,550)
+  is smaller than the median of the working set.
 
-Decizia se ia după ce sursa de unități sanitare arată cum se distribuie efectiv accesul.
-Un criteriu de mărime sau de acces real poate fi mai potrivit decât cel administrativ.
+The decision waits until the health-unit source shows how access is actually distributed. A
+size-based or access-based criterion may serve better than the administrative one.
 
 ---
 
-## Surse de date
+## Data sources
 
-| # | Sursă | Ce conține | Granularitate | Stare |
+| # | Source | Contents | Granularity | Status |
 |---|---|---|---|---|
-| 1 | INS TEMPO, matricea POP107D | Populație pe grupe de vârstă, 2026, ambele sexe | localitate (cod SIRUTA) | ✅ 42/42 fișiere, procesată și validată |
-| 2 | INS TEMPO, matricea SAN101B | Unități sanitare pe categorii și forme de proprietate, 2024 | localitate (cod SIRUTA) | ✅ 41/42 fișiere descărcate |
-| 3 | _(de stabilit)_ | Personal medical (medici la 1.000 locuitori) | județ, probabil | ⬜ |
-| 4 | _(de stabilit)_ | Coordonate geografice pentru SIRUTA | localitate | ⬜ necesară pentru calculul distanțelor |
+| 1 | INS TEMPO, matrix POP107D | Population by age group, 2026, both sexes | locality (SIRUTA code) | ✅ 42/42 files, processed and validated |
+| 2 | INS TEMPO, matrix SAN101B | Health units by category and ownership, 2024 | locality (SIRUTA code) | ✅ 41/42 files downloaded |
+| 3 | INS TEMPO, matrix SAN104B | Medical staff | locality | ⬜ not started |
+| 4 | _(to be determined)_ | Geographic coordinates per SIRUTA code | locality | ⬜ required for the distance criterion |
 
-**Sursa 1 — detalii.** 42 de exporturi CSV (41 de județe + București), descărcate manual din
-TEMPO. Grupele selectate: `Total`, `65-69`, `70-74`, `75-79`, `80-84`, `85+`.
-19.086 rânduri brute → 3.181 localități după pivotare → 3.180 după excluderea Bucureștiului.
+**Source 1.** 42 CSV exports (41 counties plus Bucharest), downloaded manually from TEMPO.
+Age groups selected: `Total`, `65-69`, `70-74`, `75-79`, `80-84`, `85+`. 19,086 raw rows →
+3,181 localities after the pivot → 3,180 after excluding Bucharest.
 
-**Sursa 4 nu era prevăzută inițial.** Criteriul de distanță din întrebarea de business cere
-coordonate atât pentru comune, cât și pentru spitale — codul SIRUTA nu le conține. Este o
-componentă geospațială care extinde semnificativ scopul proiectului.
+**Source 2.** 41 CSV exports, one per county. Bucharest is missing deliberately — it is
+excluded from locality-level analysis anyway.
 
----
-
-## Ce nu spun datele
-
-**1. Populație după domiciliu, nu populație rezidentă.**
-Totalul brut este **21.646.220**, față de ~19 milioane de rezidenți reali. Diferența o
-reprezintă persoanele cu domiciliul înregistrat în România care locuiesc în străinătate.
-Cifrele **supraestimează** populația exact în comunele rurale cu emigrație ridicată — adică
-zonele cel mai probabil să apară în răspunsul final. Orice indicator „per locuitor" are un
-numitor umflat în mediul rural, iar efectul e cu atât mai mare cu cât comuna e mai mică.
-Aceasta este cea mai importantă limitare a întregii analize.
-
-**2. Numele de localități nu sunt unice.**
-239 de nume se repetă între județe (`ADANCATA`, `ALBESTI`, `POPESTI`…).
-**Cheia de join este `cod_siruta`, niciodată numele.**
-
-**3. Comunele mici au procente exacte, dar greu comparabile.**
-Datele sunt exhaustive, nu un eșantion: `BATRANA` (Hunedoara) chiar are 51 de persoane peste
-65 de ani dintr-un total de 109 locuitori, iar 46,8% este cifra corectă. Nu există eroare de
-măsurare. Problemele sunt altele: indicatorul e **instabil în timp** (cinci decese îl mișcă
-patru puncte) și **greu de comparat** cu o localitate de 20.000 de locuitori.
-
-**Nu se aplică prag de populație.** Un prag de 2.000 de locuitori ar elimina 848 de localități
-cu 270.201 persoane de 65+ — exact populația cu accesul cel mai slab la servicii medicale,
-adică subiectul analizei. Problema de comparabilitate se rezolvă altfel: prin afișarea
-simultană a ponderii, a numărului absolut de vârstnici și a populației totale, și prin
-codificarea vizuală a mărimii localității (dimensiunea punctului), nu prin ascunderea datelor.
+**Source 4 was not part of the original plan.** The distance criterion in the business question
+requires coordinates for both localities and hospitals, and the SIRUTA code carries none. It is
+a geospatial component that materially widens the scope of the project.
 
 ---
 
-## Interpretare: media rapoartelor ≠ raportul sumelor
+## What the data does not say
 
-| Cifră | Valoare (set de lucru) | Ce înseamnă |
-|---|---|---|
-| Media coloanei `pondere_65plus` | **19,4%** | media aritmetică a 3.180 de procente — `BATRANA` (109 locuitori) cântărește cât `MUNICIPIUL IASI` (370.437) |
-| Total 65+ ÷ total populație | **18,7%** | fiecare persoană cântărește la fel |
+**1. Population by registered residence, not resident population.**
+The raw total is **21,646,220**, against roughly 19 million actual residents. The difference is
+people whose legal residence is registered in Romania but who live abroad. The figures therefore
+**overstate** population precisely in the rural communes with heavy emigration — the ones most
+likely to appear in the final answer. Every per-capita indicator here has an inflated
+denominator in rural areas, and the effect grows the smaller the commune. This is the single
+most important limitation of the whole analysis.
 
-Ambele sunt corecte și răspund la întrebări diferite:
-*„Ce procent dintre locuitori au peste 65 de ani?"* → 18,7%.
-*„Cât de îmbătrânită e o localitate tipică?"* → 19,4%.
+**2. Locality names are not unique.**
+239 names repeat across counties (`ADANCATA`, `ALBESTI`, `POPESTI`…).
+**The join key is `siruta_code`, never the name.**
 
-Diferența nu e zgomot — e informația în sine: România are multe comune mici și îmbătrânite,
-iar ele trag media nepondera în sus. În dashboard, fiecare indicator trebuie etichetat astfel
-încât să fie clar care dintre cele două este.
+**3. Health units: 2025 was unpublished, and zeros are exported inconsistently.**
 
----
+Source 2 uses **2024**, not 2026 like the population data — a two-year gap, accepted knowingly.
+At the time of download, 2025 held only the `Spitale` category: 13 rows for the whole of Alba
+county, against 274 in 2024. That was not a fact about access, it was a partial publication.
 
-## Decizii de curățare
+More consequential for the code: **TEMPO exports zeros inconsistently from county to county.**
 
-| # | Decizie | Ce s-a ales | De ce |
+| County | Rows | Of which value 0 | Actual units |
 |---|---|---|---|
-| 1 | Nume de coloane | `.str.strip()`, denumirile INS păstrate ca atare | trasabilitate către sursă — cine compară cu exportul TEMPO regăsește aceleași denumiri, fără traducere mentală |
-| 2 | Tipul lui `cod_siruta` | text (`str`) | e un **identificator**, nu o cantitate: nu se fac operații aritmetice pe el, iar păstrarea ca text elimină riscul pierderii unor eventuale zerouri la început și forțează potrivirea explicită a tipurilor la join. **Atenție la consum:** CSV-ul nu păstrează tipurile — orice recitire trebuie să forțeze `dtype={"cod_siruta": "str"}`, altfel devine `int64` și join-ul cu sursa de spitale nu potrivește nimic, fără să dea eroare |
-| 3 | Coloana `Localitati` originală | nu ajunge în tabelul lat | pivotarea păstrează doar coloanele din index; informația e integral acoperită de `cod_siruta` + `localitate`. Rămâne disponibilă în tabelul lung, pentru verificări |
-| 4 | Separarea cod / nume | `str.split(" ", n=1)` | o singură tăietură, la primul spațiu — păstrează intacte numele compuse (`MUNICIPIUL ALBA IULIA`, `VIZANTEA-LIVEZI`). Verificat: toate cele 19.086 de rânduri respectă tiparul `cod` + spațiu + `nume` |
-| 5 | `pivot` vs `pivot_table` | `pivot` | `pivot_table` agregează în tăcere duplicatele (implicit: media). `pivot` crapă — validează gratuit că fiecare localitate are exact 6 grupe de vârstă |
-| 6 | Scara lui `pondere_65plus` | raport 0–1 | formatarea ca procent aparține stratului de prezentare; Power BI înmulțește cu 100 la afișare, iar stocarea pe scara 0–100 produce `1880%` |
-| 7 | Aria analizei | validare pe 3.181; București exclus din analizele la nivel de localitate | motiv tehnic: vine agregat, 2,1M într-un singur rând, fără sectoare — incomparabil cu restul. Restrângerea la mediul rural rămâne o decizie amânată |
+| Alba | 274 | 5 (2%) | 804 |
+| Prahova | 903 | 444 (49%) | 2,067 |
+| Bacău | 3,922 | 3,577 (91%) | 1,769 |
+
+Bacău has four times as many rows as Prahova and fewer health units. So **a row count means
+nothing.** A locality has a unit of a given category only if a row exists with a strictly
+positive value; a missing row and a row holding 0 say the same thing. An indicator built by
+counting rows would declare Bacău the best-served county in the country.
+
+A further trap in the same source: if `TOTAL` is left selected under LOCALITATI in the TEMPO
+interface, the export carries per-county aggregate rows alongside the per-locality ones. The
+September 2026 download contained 41 such rows for Constanța, double-counting 2,694 units —
+a 4.7% inflation of the national total. `src/prep_health_units.py` removes them defensively and
+logs what it removed.
+
+**4. Small localities have exact but hard-to-compare shares.**
+The data is exhaustive, not a sample: `BATRANA` (Hunedoara) really does have 51 people over 65
+out of 109 inhabitants, and 46.8% is the correct figure. There is no measurement error. The
+problems are different ones: the indicator is **unstable over time** (five deaths move it four
+points) and **hard to compare** with a locality of 20,000.
+
+**No population threshold is applied to the dataset.** A 2,000-inhabitant threshold would drop
+848 localities holding 270,201 people over 65 — precisely the population with the worst access
+to medical services, which is the subject of the analysis. The comparability problem is handled
+differently: by always showing the share, the absolute count and the total population together,
+and by encoding locality size visually rather than hiding data. A threshold does appear in the
+prioritisation rule below, where it answers a different question: not *what is true*, but *where
+a new centre could realistically operate*.
 
 ---
 
-## Validare
+## Results
 
-Cifrele de referință au fost calculate **independent**, cu `awk` direct pe cele 42 de CSV-uri
-brute, fără pandas. Pipeline-ul reproduce aceleași valori — verificare încrucișată pe două
-implementări fără cod comun.
+### The two access indicators
 
-Validarea se aplică pe setul complet de 3.181 de localități, **înainte** de orice excludere.
+Access is measured on two axes rather than one:
 
-| Verificare | Valoare așteptată |
-|---|---|
-| Localități | 3.181 (= 2.862 comune + 216 orașe + 103 municipii, numărul oficial de UAT-uri) |
-| `cod_siruta` unic | 0 duplicate |
-| Valori lipsă | 0 |
-| `populatie_65plus ≤ Total` | pe fiecare rând |
-| `pondere_65plus ∈ [0, 1]` | pe fiecare rând |
-| Total populație 65+ | 4.076.589 |
-| Total populație | 21.646.220 |
-| Pondere 65+ la nivel național | 18,8% |
-| Extreme | max 46,8% `BATRANA` (HD) · min 2,8% `BARBULESTI` (IL) |
-
-După excluderea Bucureștiului: 3.180 de localități, între 109 și 370.437 locuitori, mediana 3.003.
-
----
-
-## Rezultate
-
-### Cei doi indicatori de acces
-
-Accesul e măsurat pe două axe, nu pe una singură:
-
-| Indicator | Definiție | Localități |
+| Indicator | Definition | Localities |
 |---|---|---|
-| `are_medic_familie` | cel puțin un cabinet de medicină de familie | 2.821 din 3.180 |
-| `are_farmacie` | cel puțin o farmacie **sau** un punct farmaceutic | 2.553 din 3.180 |
+| `has_family_doctor` | at least one family-medicine practice | 2,821 of 3,180 |
+| `has_pharmacy` | at least one pharmacy **or** one pharmacy point | 2,553 of 3,180 |
 
-**De ce intră și punctele farmaceutice.** Punctul farmaceutic e forma redusă, permisă legal
-tocmai în localitățile prea mici pentru a susține o farmacie completă. 516 localități au punct
-farmaceutic dar nu au farmacie; excluzându-le, le-am declara fără acces la medicație deși au
-unde să își ridice rețeta. Rezerva: un punct farmaceutic are stoc și program mai reduse, deci
-„are acces" nu înseamnă acces egal.
+**Why pharmacy points count.** The pharmacy point is the reduced form, permitted by law
+precisely in localities too small to sustain a full pharmacy. 516 localities have one without
+having a pharmacy; excluding them would declare those localities cut off from medication when
+residents do have somewhere to fill a prescription. The caveat: a pharmacy point holds less
+stock and keeps shorter hours, so "has access" does not mean equal access.
 
-### Cele patru situații
+### The four situations
 
 ```
-are_farmacie       False  True
-are_medic_familie
+has_pharmacy       False  True
+has_family_doctor
 False                169    190
 True                 458   2363
 ```
 
-Prima observație care contrazice intuiția: **lipsa farmaciei e aproape de două ori mai
-răspândită decât lipsa medicului** — 627 de localități fără farmacie, față de 359 fără medic
-de familie. Un singur indicator, construit doar pe medicul de familie, ar fi ratat problema
-mai mare.
+The first observation runs against intuition: **missing a pharmacy is almost twice as common as
+missing a doctor** — 627 localities without a pharmacy against 359 without a family doctor. A
+single indicator built on the family doctor alone would have missed the larger problem.
 
-### Accesul scade odată cu îmbătrânirea
+### Access falls as population ages
 
-Ponderea medie a populației de 65+, pe cele patru grupe:
+Average 65+ share across the four groups:
 
-| | fără farmacie | cu farmacie |
+| | without pharmacy | with pharmacy |
 |---|---|---|
-| **fără medic** | **23,6%** | 19,3% |
-| **cu medic** | 21,2% | 18,8% |
+| **without doctor** | **23.6%** | 19.3% |
+| **with doctor** | 21.2% | 18.8% |
 
-Gradient monoton: cu cât o localitate are mai puține servicii, cu atât e mai îmbătrânită.
+A monotone gradient: the fewer services a locality has, the older it is.
 
-### Lista scurtă
+### Localities with neither
 
-**169 de localități nu au nici medic de familie, nici farmacie** — 224.756 de locuitori, din
-care 47.750 peste 65 de ani. Cele mai îmbătrânite dintre ele:
+**169 localities have neither a family doctor nor a pharmacy** — 224,756 inhabitants, 47,750 of
+them over 65. By county: Caraș-Severin 18, Hunedoara 16, Mehedinți 14, Vaslui 12, Buzău 11,
+Cluj 11. The western mountains and Moldova — with the notable exception of Cluj, a prosperous
+county holding 11 localities with no medical service at all.
 
-| Localitate | Județ | Populație | 65+ | Pondere |
-|---|---|---|---|---|
-| BATRANA | Hunedoara | 109 | 51 | 46,8% |
-| PARDOSI | Buzău | 287 | 128 | 44,6% |
-| CERBAL | Hunedoara | 388 | 171 | 44,1% |
-| BUNILA | Hunedoara | 309 | 128 | 41,4% |
-| BREBU NOU | Caraș-Severin | 328 | 135 | 41,2% |
-| TOMESTI | Hunedoara | 1.001 | 394 | 39,4% |
-| UDA-CLOCOCIOV | Teleorman | 1.149 | 441 | 38,4% |
+### The answer: ten localities
 
-Distribuția pe județe a celor 169: Caraș-Severin 18, Hunedoara 16, Mehedinți 14, Vaslui 12,
-Buzău 11, Cluj 11. Zona montană de vest și Moldova — cu excepția notabilă a Clujului, județ
-prosper cu 11 localități fără niciun serviciu medical.
+Two rules take the 169 candidates down to 10, each chosen explicitly.
 
-### Răspunsul: cele 10 localități
+**Rule 1 — a 1,000-inhabitant threshold**, leaving 113 candidates.
 
-Din cei 169 de candidați (fără medic de familie **și** fără farmacie) se ajunge la 10 prin
-două reguli, fiecare aleasă explicit.
+The reason is not convention but the shape of the trade-off curve. Ranking by 65+ share under
+different thresholds:
 
-**Regula 1 — prag de 1.000 de locuitori.** Reduce candidații la 113.
-
-Motivul nu e o convenție, ci forma curbei de compromis. Clasamentul după ponderea vârstnicilor,
-sub diverse praguri:
-
-| Prag | Candidați | Vârstnici în top 10 | Pondere minimă în top 10 |
+| Threshold | Candidates | Elderly in top 10 | Lowest share in top 10 |
 |---|---|---|---|
-| fără prag | 169 | 1.936 | 36,4% |
-| 500 | 156 | 3.906 | 32,7% |
-| **1.000** | **113** | **4.762** | **29,5%** |
-| 1.500 | 55 | 5.213 | 23,1% |
-| 2.000 | 15 | 5.396 | 16,9% |
+| none | 169 | 1,936 | 36.4% |
+| 500 | 156 | 3,906 | 32.7% |
+| **1,000** | **113** | **4,762** | **29.5%** |
+| 1,500 | 55 | 5,213 | 23.1% |
+| 2,000 | 15 | 5,396 | 16.9% |
 
-Fără prag, cele 10 centre ar deservi 1.936 de vârstnici — circa 190 fiecare. Un cabinet nu se
-susține cu atât, și exact asta e cauza pentru care medicul a plecat deja. La celălalt capăt,
-pragul de 2.000 coboară ștacheta sub media națională de 18,7%: selectezi comune mari care
-întâmplător n-au servicii, nu comune îmbătrânite.
+With no threshold the ten centres would serve 1,936 elderly people, about 190 each. A practice
+cannot sustain itself on that — which is exactly why the doctor left already. At the other end,
+a 2,000 threshold pushes the entry bar below the national average of 18.7%: the list starts
+selecting large communes that happen to lack services rather than ageing ones.
 
-Între 500 și 1.000 se află genunchiul curbei — punctul de la care fiecare vârstnic în plus
-costă tot mai mult din acuitatea nevoii.
+The knee of the curve sits between 500 and 1,000 — the point past which every additional
+elderly person served costs increasingly more in the acuteness of the need being addressed.
 
-**Regula 2 — maximum 2 localități per județ.** Fără ea, Teleorman ocupă 5 din 10 poziții.
-E corect matematic, dar o alocare națională care pune jumătate din investiție într-un singur
-județ are nevoie de o justificare pe care datele nu o pot da.
+**Rule 2 — at most 2 localities per county.** Without it, Teleorman takes 5 of the 10 places.
+That is mathematically correct, but a national allocation placing half the investment in a
+single county needs a justification the data cannot supply.
 
-Constrângerea e aproape gratuită:
+The constraint is nearly free:
 
-| | fără limită | cu max 2/județ |
+| | unconstrained | max 2 per county |
 |---|---|---|
-| Vârstnici deserviți | 4.762 | **4.798** |
-| Pondere minimă | 29,5% | 28,7% |
-| Județe acoperite | 5 | **7** |
+| Elderly people served | 4,762 | **4,798** |
+| Lowest 65+ share | 29.5% | 28.7% |
+| Counties covered | 5 | **7** |
 
-Numărul de vârstnici deserviți chiar crește ușor, iar acoperirea geografică se extinde de la
-5 la 7 județe, cu un cost de 0,8 puncte procentuale pe pragul de intrare.
+The number of elderly people served actually rises slightly, geographic coverage widens from 5
+counties to 7, and the entry bar costs 0.8 percentage points.
 
-**Rezultatul:**
+**Result:**
 
-| # | Localitate | Județ | Populație | 65+ | Pondere |
+| # | Locality | County | Population | 65+ | Share |
 |---|---|---|---|---|---|
-| 1 | TOMESTI | Hunedoara | 1.001 | 394 | 39,4% |
-| 2 | UDA-CLOCOCIOV | Teleorman | 1.149 | 441 | 38,4% |
-| 3 | FANTANELE | Teleorman | 1.248 | 426 | 34,1% |
-| 4 | PIETRARI | Vâlcea | 2.891 | 971 | 33,6% |
-| 5 | OBARSIA DE CAMP | Mehedinți | 1.502 | 458 | 30,5% |
-| 6 | NAIDAS | Caraș-Severin | 1.077 | 322 | 29,9% |
-| 7 | MARTINESTI | Hunedoara | 1.008 | 297 | 29,5% |
-| 8 | STROESTI | Vâlcea | 2.532 | 743 | 29,3% |
-| 9 | ISVOARELE | Giurgiu | 1.334 | 384 | 28,8% |
-| 10 | MANASTIRENI | Cluj | 1.263 | 362 | 28,7% |
+| 1 | TOMESTI | Hunedoara | 1,001 | 394 | 39.4% |
+| 2 | UDA-CLOCOCIOV | Teleorman | 1,149 | 441 | 38.4% |
+| 3 | FANTANELE | Teleorman | 1,248 | 426 | 34.1% |
+| 4 | PIETRARI | Vâlcea | 2,891 | 971 | 33.6% |
+| 5 | OBARSIA DE CAMP | Mehedinți | 1,502 | 458 | 30.5% |
+| 6 | NAIDAS | Caraș-Severin | 1,077 | 322 | 29.9% |
+| 7 | MARTINESTI | Hunedoara | 1,008 | 297 | 29.5% |
+| 8 | STROESTI | Vâlcea | 2,532 | 743 | 29.3% |
+| 9 | ISVOARELE | Giurgiu | 1,334 | 384 | 28.8% |
+| 10 | MANASTIRENI | Cluj | 1,263 | 362 | 28.7% |
 
-4.798 de persoane peste 65 de ani, 7 județe, nicio localitate sub 28,7% pondere a vârstnicilor.
+4,798 people over 65, across 7 counties, none below a 28.7% elderly share.
 
-**De ce nu un clasament simplu.** Ordonarea după numărul absolut de vârstnici produce o listă
-complet diferită — zero suprapunere cu cea de mai sus — care ar deservi 5.974 de persoane, cu
-25% mai multe. Dar include comune ca VLASINESTI (11,5% vârstnici) și GROSI (13,9%), sub media
-națională: localități mari fără servicii, nu localități îmbătrânite. Clasamentul acela răspunde
-la o altă întrebare decât cea pusă.
+**Why not a simple ranking.** Ordering by the absolute number of elderly people produces a
+completely different list — zero overlap with the one above — serving 5,974 people, 25% more.
+But it includes communes such as VLASINESTI (11.5% elderly) and GROSI (13.9%), both below the
+national average: large localities without services rather than ageing ones. That ranking
+answers a different question from the one asked.
 
-**Limita care rămâne.** Nevoia nu e același lucru cu fezabilitatea. O comună de 1.001 locuitori
-rămâne mică pentru un cabinet permanent, iar pragul ales reduce riscul fără să-l elimine.
-Evaluarea viabilității fiecărei locații depășește ce pot spune aceste date.
+### What these figures do not prove
+
+**Correlation, not causation.** The link between ageing and missing services is clear, but the
+direction cannot be established from this data. Does a commune age until the practice closes
+for lack of patients, or do the services disappear and young families leave? Almost certainly
+both, reinforcing each other. The analysis cannot separate them.
+
+The practical consequence for the recommendation: a commune that lost its doctor because it has
+109 inhabitants will present a new centre with the same problem. *Where the need is greatest*
+and *where building makes sense* produce different lists. The 1,000-inhabitant threshold reduces
+that risk without eliminating it; assessing the viability of each site is beyond what this data
+can say.
+
+**"No practice registered in the locality" does not mean no care at all.** A doctor from a
+neighbouring commune may hold hours there. TEMPO cannot say. It is the best available signal,
+not a certainty.
+
+### One more thing worth stating: the mean of ratios is not the ratio of sums
+
+| Figure | Value | Meaning |
+|---|---|---|
+| Mean of the `share_65plus` column | **19.4%** | the arithmetic mean of 3,180 percentages — `BATRANA` (109 people) weighs as much as `MUNICIPIUL IASI` (370,437) |
+| Total 65+ ÷ total population | **18.7%** | every person weighs the same |
+
+Both are correct and answer different questions: *what share of people are over 65?* → 18.7%;
+*how aged is a typical locality?* → 19.4%. The difference is not noise, it is the finding
+itself: Romania has many small, ageing communes, and they pull the unweighted mean up. In a
+dashboard, each indicator has to be labelled so it is clear which of the two it is.
 
 ---
 
-### Ce nu demonstrează aceste cifre
+## Cleaning decisions
 
-**Corelație, nu cauzalitate.** Legătura dintre îmbătrânire și lipsa serviciilor e clară, dar
-direcția nu se poate stabili din aceste date. Comuna îmbătrânește și cabinetul se închide din
-lipsă de pacienți, sau serviciile dispar și familiile tinere pleacă? Aproape sigur amândouă,
-reciproc. Analiza nu le poate separa.
-
-Consecința practică pentru recomandarea finală: o comună care a pierdut medicul pentru că are
-109 locuitori va pune aceeași problemă unui centru nou. *Unde e nevoia cea mai mare* și *unde
-are sens să construiești* produc liste diferite.
-
-**„Fără cabinet înregistrat în localitate" nu înseamnă zero asistență.** Un medic dintr-o
-comună vecină poate ține program acolo. TEMPO nu poate spune asta. E cel mai bun semnal
-disponibil, nu o certitudine.
+| # | Decision | Choice | Rationale |
+|---|---|---|---|
+| 1 | Source column names | `.str.strip()`, INS labels kept as they are | traceability — anyone comparing against the TEMPO export finds the same labels, with no mental translation |
+| 2 | Type of `siruta_code` | text (`str`) | it is an **identifier**, not a quantity: no arithmetic is performed on it, keeping it as text removes any risk of losing leading zeros, and it forces types to be matched explicitly at join time. **Note for consumers:** CSV does not preserve dtypes — any re-read must force `dtype={"siruta_code": "str"}`, or it becomes `int64` and the join with the health-unit source matches nothing without raising |
+| 3 | Column names for derived fields | English identifiers (`population_65plus`, `share_65plus`, `has_pharmacy`) | the pipeline owns these columns; the 33 health-unit **category** names stay verbatim from INS, because those remain columns of the source itself and are how any figure is traced back |
+| 4 | Splitting code from name | `str.split(" ", n=1)` | a single cut at the first space keeps compound names intact (`MUNICIPIUL ALBA IULIA`, `VIZANTEA-LIVEZI`). Verified: all 19,086 rows follow the `<code> <name>` pattern |
+| 5 | `pivot` vs `pivot_table` for population | `pivot` | `pivot_table` silently aggregates duplicates (mean by default). `pivot` raises — validating for free that each locality has exactly 6 age groups |
+| 6 | `pivot` vs `pivot_table` for health units | `pivot_table(aggfunc="sum")` | the mirror case: each locality has up to three rows per category (public, mixed, private) and they are meant to be added. The aggregation is intentional, and a total-preserved check guards it |
+| 7 | Scale of `share_65plus` | ratio, 0–1 | percent formatting belongs to the presentation layer; Power BI multiplies by 100 on display, so storing a 0–100 scale yields `1880%` |
+| 8 | Zero-valued health-unit rows | dropped before the pivot | TEMPO exports zeros inconsistently by county; only a strictly positive value means the unit exists |
+| 9 | Scope | validate on 3,181; exclude Bucharest from locality-level analysis | technical: it arrives aggregated, 2.1M in one row, no sectors. Narrowing to rural localities remains deferred |
 
 ---
 
-## Structura proiectului
+## Validation
+
+Reference figures were computed **independently**, with `awk` straight from the raw CSVs,
+without pandas. The pipeline reproduces the same values — a cross-check across two
+implementations sharing no code.
+
+Validation runs on the complete set of 3,181 localities, before any exclusion.
+
+| Check | Expected |
+|---|---|
+| Localities | 3,181 (= 2,862 communes + 216 towns + 103 municipalities, the official count of territorial units) |
+| `siruta_code` unique | 0 duplicates |
+| Missing values | 0 |
+| `population_65plus ≤ population_total` | on every row |
+| `share_65plus ∈ [0, 1]` | on every row |
+| Total population 65+ | 4,076,589 |
+| Total population | 21,646,220 |
+| National 65+ share | 18.8% |
+| Extremes | max 46.8% `BATRANA` (HD) · min 2.8% `BARBULESTI` (IL) |
+| Health units, after dropping aggregates and zeros | 57,027 units across 3,040 localities |
+| Localities with no unit at all | 140 |
+
+After excluding Bucharest: 3,180 localities, between 109 and 370,437 inhabitants, median 3,003.
+
+---
+
+## Project layout
 
 ```
-data/raw/         date brute, niciodată modificate manual
-data/processed/   rezultatul curățării (ignorat de git)
-notebooks/        explorare interactivă
-src/              cod care rulează repetat
+data/raw/         raw exports, never edited by hand
+data/processed/   cleaning output (git-ignored)
+notebooks/        interactive exploration
+src/              code that runs repeatedly
 ```
+
+| File | Role |
+|---|---|
+| `src/prep_population.py` | 42 CSVs → `population_by_locality.csv` (3,180 rows) |
+| `src/prep_health_units.py` | 41 CSVs → `health_units_by_locality.csv` (3,040 rows) |
+| `src/build_dataset.py` | joins both → `analysis_dataset.csv` (3,180 rows, 47 columns) |
+| `notebooks/01_exploration.ipynb` | how the population cleaning was worked out |
+| `notebooks/02_indicators.ipynb` | how the indicators and the shortlist were designed |
 
 ## Setup
 
@@ -339,40 +362,41 @@ src/              cod care rulează repetat
 python3 -m venv venv && source venv/bin/activate && pip install pandas jupyter
 ```
 
-## Rulare
+## Running
 
-Reface întregul lanț, de la CSV-urile brute la fișierul din `data/processed/`:
+Rebuilds the whole chain, from the raw CSVs to the analysis dataset:
 
 ```bash
-python src/prep_populatie.py     # 42 CSV-uri  -> populatie_localitati.csv  (3.180)
-python src/prep_unitati.py       # 41 CSV-uri  -> unitati_localitati.csv    (3.040)
-python src/construieste_set.py   # le imbina   -> set_analiza.csv           (3.180)
+python src/prep_population.py      # 42 CSVs  -> population_by_locality.csv    (3,180)
+python src/prep_health_units.py    # 41 CSVs  -> health_units_by_locality.csv  (3,040)
+python src/build_dataset.py        # joins    -> analysis_dataset.csv          (3,180)
 ```
 
-Scriptul se oprește cu `EroareDeDate` și cod de ieșire 1 dacă vreuna dintre
-presupunerile despre date nu se confirmă. Notebook-ul rămâne ca urmă a explorării.
+Each script stops with `DataError` and exit code 1 if any assumption about the data fails to
+hold. The notebooks remain as the record of how the logic was worked out.
 
 ---
 
-## Stadiu
+## Status
 
-**Sursa 1 — populație**
-- [x] Ingerare din 42 de CSV-uri, curățare, separare SIRUTA, pivotare
-- [x] 8 verificări automate pe setul complet de 3.181 de localități
-- [x] Excluderea Bucureștiului (după validare) → 3.180 de localități
-- [x] Export în `data/processed/populatie_localitati.csv`
-- [x] Mutarea logicii din notebook în `src/prep_populatie.py`
+**Source 1 — population**
+- [x] Ingest 42 CSVs, clean, split SIRUTA, pivot
+- [x] 8 automated checks on the complete set of 3,181 localities
+- [x] Exclude Bucharest after validation → 3,180 localities
+- [x] `src/prep_population.py`
 
-**Decizii de scop, de luat înainte de sursa 2**
-- [ ] Se restrânge analiza la mediul rural? (vezi *Aria analizei*)
-- [ ] Se păstrează criteriul de distanță? Implică sursa 4 și geocodare
-- [ ] Ce prag de distanță înseamnă „acces slab"?
+**Source 2 — health units**
+- [x] 41 CSVs, SAN101B, 2024
+- [x] `src/prep_health_units.py` — 3,040 localities with at least one unit
+- [x] Join on `siruta_code` → `src/build_dataset.py`
+- [x] Access indicators, on two axes
+- [x] Prioritisation rule — 1,000-inhabitant threshold, at most 2 per county
 
-**Mai departe**
-- [x] Sursa 2 — unități sanitare (SAN101B, 2024, 41 județe)
-- [x] `src/prep_unitati.py` — 3.040 localități cu cel puțin o unitate
-- [x] Join pe `cod_siruta` → `src/construieste_set.py`, 3.180 localități
-- [x] Indicatorii de acces (`notebooks/02_indicatori.ipynb`)
-- [x] Regula de prioritizare — prag 1.000 locuitori, maximum 2 per județ
-- [ ] Sursa 3 — personal medical (SAN104B)
-- [ ] Dashboard Power BI
+**Scope decisions still open**
+- [ ] Narrow the analysis to rural localities? (see *Scope*)
+- [ ] Keep the distance criterion? It requires source 4 and geocoding
+- [ ] What distance threshold counts as poor access?
+
+**Next**
+- [ ] Source 3 — medical staff (SAN104B)
+- [ ] Power BI dashboard
