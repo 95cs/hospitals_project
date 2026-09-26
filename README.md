@@ -237,6 +237,76 @@ Distribuția pe județe a celor 169: Caraș-Severin 18, Hunedoara 16, Mehedinți
 Buzău 11, Cluj 11. Zona montană de vest și Moldova — cu excepția notabilă a Clujului, județ
 prosper cu 11 localități fără niciun serviciu medical.
 
+### Răspunsul: cele 10 localități
+
+Din cei 169 de candidați (fără medic de familie **și** fără farmacie) se ajunge la 10 prin
+două reguli, fiecare aleasă explicit.
+
+**Regula 1 — prag de 1.000 de locuitori.** Reduce candidații la 113.
+
+Motivul nu e o convenție, ci forma curbei de compromis. Clasamentul după ponderea vârstnicilor,
+sub diverse praguri:
+
+| Prag | Candidați | Vârstnici în top 10 | Pondere minimă în top 10 |
+|---|---|---|---|
+| fără prag | 169 | 1.936 | 36,4% |
+| 500 | 156 | 3.906 | 32,7% |
+| **1.000** | **113** | **4.762** | **29,5%** |
+| 1.500 | 55 | 5.213 | 23,1% |
+| 2.000 | 15 | 5.396 | 16,9% |
+
+Fără prag, cele 10 centre ar deservi 1.936 de vârstnici — circa 190 fiecare. Un cabinet nu se
+susține cu atât, și exact asta e cauza pentru care medicul a plecat deja. La celălalt capăt,
+pragul de 2.000 coboară ștacheta sub media națională de 18,7%: selectezi comune mari care
+întâmplător n-au servicii, nu comune îmbătrânite.
+
+Între 500 și 1.000 se află genunchiul curbei — punctul de la care fiecare vârstnic în plus
+costă tot mai mult din acuitatea nevoii.
+
+**Regula 2 — maximum 2 localități per județ.** Fără ea, Teleorman ocupă 5 din 10 poziții.
+E corect matematic, dar o alocare națională care pune jumătate din investiție într-un singur
+județ are nevoie de o justificare pe care datele nu o pot da.
+
+Constrângerea e aproape gratuită:
+
+| | fără limită | cu max 2/județ |
+|---|---|---|
+| Vârstnici deserviți | 4.762 | **4.798** |
+| Pondere minimă | 29,5% | 28,7% |
+| Județe acoperite | 5 | **7** |
+
+Numărul de vârstnici deserviți chiar crește ușor, iar acoperirea geografică se extinde de la
+5 la 7 județe, cu un cost de 0,8 puncte procentuale pe pragul de intrare.
+
+**Rezultatul:**
+
+| # | Localitate | Județ | Populație | 65+ | Pondere |
+|---|---|---|---|---|---|
+| 1 | TOMESTI | Hunedoara | 1.001 | 394 | 39,4% |
+| 2 | UDA-CLOCOCIOV | Teleorman | 1.149 | 441 | 38,4% |
+| 3 | FANTANELE | Teleorman | 1.248 | 426 | 34,1% |
+| 4 | PIETRARI | Vâlcea | 2.891 | 971 | 33,6% |
+| 5 | OBARSIA DE CAMP | Mehedinți | 1.502 | 458 | 30,5% |
+| 6 | NAIDAS | Caraș-Severin | 1.077 | 322 | 29,9% |
+| 7 | MARTINESTI | Hunedoara | 1.008 | 297 | 29,5% |
+| 8 | STROESTI | Vâlcea | 2.532 | 743 | 29,3% |
+| 9 | ISVOARELE | Giurgiu | 1.334 | 384 | 28,8% |
+| 10 | MANASTIRENI | Cluj | 1.263 | 362 | 28,7% |
+
+4.798 de persoane peste 65 de ani, 7 județe, nicio localitate sub 28,7% pondere a vârstnicilor.
+
+**De ce nu un clasament simplu.** Ordonarea după numărul absolut de vârstnici produce o listă
+complet diferită — zero suprapunere cu cea de mai sus — care ar deservi 5.974 de persoane, cu
+25% mai multe. Dar include comune ca VLASINESTI (11,5% vârstnici) și GROSI (13,9%), sub media
+națională: localități mari fără servicii, nu localități îmbătrânite. Clasamentul acela răspunde
+la o altă întrebare decât cea pusă.
+
+**Limita care rămâne.** Nevoia nu e același lucru cu fezabilitatea. O comună de 1.001 locuitori
+rămâne mică pentru un cabinet permanent, iar pragul ales reduce riscul fără să-l elimine.
+Evaluarea viabilității fiecărei locații depășește ce pot spune aceste date.
+
+---
+
 ### Ce nu demonstrează aceste cifre
 
 **Corelație, nu cauzalitate.** Legătura dintre îmbătrânire și lipsa serviciilor e clară, dar
@@ -303,6 +373,6 @@ presupunerile despre date nu se confirmă. Notebook-ul rămâne ca urmă a explo
 - [x] `src/prep_unitati.py` — 3.040 localități cu cel puțin o unitate
 - [x] Join pe `cod_siruta` → `src/construieste_set.py`, 3.180 localități
 - [x] Indicatorii de acces (`notebooks/02_indicatori.ipynb`)
-- [ ] Regula de prioritizare pentru „primele 10" — 169 de candidați, 10 locuri
+- [x] Regula de prioritizare — prag 1.000 locuitori, maximum 2 per județ
 - [ ] Sursa 3 — personal medical (SAN104B)
 - [ ] Dashboard Power BI
