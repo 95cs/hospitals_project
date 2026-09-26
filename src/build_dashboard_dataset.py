@@ -140,9 +140,14 @@ def build_serving_table(df: pd.DataFrame) -> pd.DataFrame:
 
     shortlist_index = select_shortlist(df)
     out["is_shortlisted"] = out.index.isin(shortlist_index)
-    out["shortlist_rank"] = pd.Series(
-        range(1, len(shortlist_index) + 1), index=shortlist_index
-    ).reindex(out.index)
+    # Nullable integer, not float. A plain int column cannot hold the blanks the
+    # 3,170 unranked localities need, so pandas would silently widen it to float and
+    # write "1.0" into the CSV — which any BI tool then reads as a decimal.
+    out["shortlist_rank"] = (
+        pd.Series(range(1, len(shortlist_index) + 1), index=shortlist_index)
+        .reindex(out.index)
+        .astype("Int64")
+    )
 
     return out
 
