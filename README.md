@@ -353,6 +353,7 @@ src/              code that runs repeatedly
 | `src/prep_population.py` | 42 CSVs → `population_by_locality.csv` (3,180 rows) |
 | `src/prep_health_units.py` | 41 CSVs → `health_units_by_locality.csv` (3,040 rows) |
 | `src/build_dataset.py` | joins both → `analysis_dataset.csv` (3,180 rows, 47 columns) |
+| `src/build_dashboard_dataset.py` | serving layer for the report → `dashboard_dataset.csv` (3,180 rows, 23 columns) |
 | `notebooks/01_exploration.ipynb` | how the population cleaning was worked out |
 | `notebooks/02_indicators.ipynb` | how the indicators and the shortlist were designed |
 
@@ -370,6 +371,7 @@ Rebuilds the whole chain, from the raw CSVs to the analysis dataset:
 python src/prep_population.py      # 42 CSVs  -> population_by_locality.csv    (3,180)
 python src/prep_health_units.py    # 41 CSVs  -> health_units_by_locality.csv  (3,040)
 python src/build_dataset.py        # joins    -> analysis_dataset.csv          (3,180)
+python src/build_dashboard_dataset.py  #       -> dashboard_dataset.csv         (3,180)
 ```
 
 Each script stops with `DataError` and exit code 1 if any assumption about the data fails to
@@ -399,4 +401,4 @@ hold. The notebooks remain as the record of how the logic was worked out.
 
 **Next**
 - [ ] Source 3 — medical staff (SAN104B)
-- [ ] Power BI dashboard
+- [ ] Power BI dashboard — serving dataset ready, report in progress
